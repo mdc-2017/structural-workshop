@@ -9,25 +9,29 @@ output:
 \
 \
    MDC Longitudinal Imaging Workshop, Portland 2017  
-
+\linebreak
   AIM:  To create a simulated longitudinal dataset for teaching purposes \
 \
-  Constraints/Guidelines based on Mills & Tamnes (2014), Mills et al (2016) and Vijayakumara et al (2017) 
-  I want \
+  Data Constraints based on Mills & Tamnes (2014), Mills et al (2016) and Vijayakumara et al (2017) \
+\linebreak  
+  We want \
        ~ n >400 Baseline \
        ~ 4 time points ("waves") \
-       ~ baseline scan age range 6-9yrs
+       ~ baseline scan age range 6-9yrs \
        ~ variable range (1.5 -2.2) yrs for each follow up \ 
        ~ 50/50 female/male with slightly different trajectories for sexes \
        ~ want to add in examples of drop out and noise \
- 
+ \
+ \
  Note      
-  ** Any typos are MLS's fault \
+  ** Any typos are MLS' fault \
   ** You will need the following R Packages \    
-      simstudy, ttidyverse, knitr, GGally, nlme, pander
+      simstudy, ttidyverse, knitr, GGally, nlme \
 \  
-\
-```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
+\linebreak
+\linebreak
+###Load Packages
+```{r, Load.Packages, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
 
   ## Load Packages
     library(knitr)
@@ -37,10 +41,10 @@ output:
     library(GGally)
 
 ```
-\
-\
-#####Create Simulated Data 
-```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
+\linebreak
+\linebreak
+#####Create Simulated Data  
+```{r, Create.Longitudinal.Data, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
 
     # Set up using Keith Goldfield's "Longitudinal data with varying observation and interval times"
     #  https://cran.r-project.org/web/packages/simstudy/vignettes/simstudy.html
@@ -102,8 +106,8 @@ output:
 ```
 \
 \newpage
-####Now to make the data NOISY    
-```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
+#### Make Data Noisy     
+```{r, Noisy.Data, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
 
   ## By Sex - make Male slightly less "mature"
     SIM_DATA_long$T1.wbv<- SIM_DATA_long$T1.wbv*(1 + 0.2*(SIM_DATA_long$Sex == "Male"))
@@ -120,8 +124,8 @@ output:
 \
 \newpage
 
-## Sanity Check - Distribution of Baseline simulated measures 
-```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
+#### Sanity Check - Distribution of Baseline simulated measures 
+```{r,Baseline.Plots, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
   
     ## First, need to check baseline   
 
@@ -155,8 +159,8 @@ output:
 ```
 \newpage
 
-## Sanity Check 2 - Correlation between Baseline simulated measures 
-```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
+#### Sanity Check 2 - Correlation between Baseline simulated measures 
+```{r, Baseline.Correlations, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
  
     # Need to check that simulated measures are correlated but not too much!
       library(GGally)
@@ -165,9 +169,10 @@ output:
 ```
 \newpage
 
+####Data Plots
+```{r, ID_plots, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
 
-####Inspect the data 
-```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
+  ## To plot data with repeated assessments 
 
     # Whole Brain Volume (wbv)
         ggplot(SIM_DATA_long, aes(x=Age, y=T1.wbv)) +
@@ -213,6 +218,7 @@ output:
 ```
 \newpage
 
+
 ####Simple Plots - Cross-sectional Age 
 ```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -242,229 +248,77 @@ output:
         
 ```
 
+\newpage
 
 
-####Testing - Longitudinal Models
-```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
+####Longitudinal Models & Plots
+```{r, Longitudinal.Plots, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
 
-    ## Using lme function (linear mixed-effects models)
+    ## Run linear mixed-effects models using lme function 
 
         # WBV
-          lme.wbv <- lme(T1.wbv ~ Age, random =~1|ID, data = SIM_DATA_long)
+          lme.wbv <- lme(T1.wbv ~ Age*Sex, random =~1|ID, data = SIM_DATA_long)
           summary(lme.wbv)
         # Cortex
-          lme.cortex <- lme(T1.cortex ~ Age, random =~1|ID, data = SIM_DATA_long)
+          lme.cortex <- lme(T1.cortex ~ Age*Sex, random =~1|ID, data = SIM_DATA_long)
           summary(lme.cortex)
         # White
-          lme.white <- lme(T1.white ~ Age, random =~1|ID, data = SIM_DATA_long)
+          lme.white <- lme(T1.white ~ Age*Sex, random =~1|ID, data = SIM_DATA_long)
           summary(lme.white)
         # Cortical Thickness
-          lme.ct <- lme(T1.cortical.thickness ~ Age, random =~1|ID, data = SIM_DATA_long)
+          lme.ct <- lme(T1.cortical.thickness ~ Age*Sex, random =~1|ID, data = SIM_DATA_long)
           summary(lme.ct)
         # Surface Area
-          lme.sa <- lme(T1.cortical.thickness ~ Age, random =~1|ID, data = SIM_DATA_long)
+          lme.sa <- lme(T1.cortical.thickness ~ Age*Sex, random =~1|ID, data = SIM_DATA_long)
           summary(lme.sa)
                  
-     ## to plot need to pull out residuals and add to dataframe
-          library(AICcmodavg)
           
-       SIM_DATA.lmefit <- within(SIM_DATA_long,
-                       {
-                           prediction <- predictSE.lme(lme.ct,SIM_DATA_long, se.fit=TRUE, level=0)
-                           lwr <- prediction$fit - 1.96*prediction$se.fit
-                           upr <- prediction$fit + 1.96*prediction$se.fit
-                           prediction <- prediction$fit
+     ## To plot lme fit need to calculate predicted values and add to dataframe
+     ## Need to customise the following code for each brain measure & lme model
+
+        library(AICcmodavg)
+        SIM_DATA.lmefit <- within(SIM_DATA_long,
+                        {
+                           prediction <- predictSE.lme(lme.wbv,SIM_DATA_long, se.fit=TRUE, level=0)
+                           lwr <- prediction$fit - 1.96*prediction$se.fit   # 95% CI
+                           upr <- prediction$fit + 1.96*prediction$se.fit   # 95% CI
+                           prediction <- prediction$fit                     # predcited values 
                        }
                        )
-
-          ggplot(SIM_DATA_long, aes(x=Age, y=T1.cortical.thickness)) + 
-                 geom_point(size=1) +
-               geom_smooth(data=SIM_DATA.lmefit, aes(x=Age, y=prediction, group = Sex,colour = Sex, ymin=lwr, ymax=upr), stat="identity") +
+        
+      # To plot predicted lme fit and "real" data points 
+        ggplot(SIM_DATA_long, aes(x=Age, y=T1.wbv)) + 
+                 geom_point(size=1, aes(colour=Sex)) +
+                 geom_smooth(data=SIM_DATA.lmefit, aes(x=Age, y=prediction, group = Sex,colour = Sex, ymin=lwr, ymax=upr), stat="identity") +
                 xlab(" Age (years)") +
                 ylab(expression(WBV (mm^3))) +
         theme(axis.text.x= element_text(size=18),axis.text.y= element_text(size=18), axis.title.y= element_text(size=18),axis.title.x = element_text(size=18))  
-                      
           
+```
+
+
+\newpage
+
+
+####Splines!
+```{r, Splines, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
+
+  ## Splines
+      
+        library(dplyr)
+        library(gss)     # General Smoothing Splines package
      
-```
-
-
- # WBV
-          lme.ct <- lme(T1.cortical.thickness ~ Age*Sex, random =~1|ID, data = SIM_DATA_long)
-          summary(lme.ct)
-
-
-
-
-
-####Now some Plots - Age x Sex Linear 
-```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
-
- 
-        ## To diplay "simple corssectional fit"     
-          # function code from Susan E. Johnston's excellent Blog     
-          # https://susanejohnston.wordpress.com/2012/08/09/a-quick-and-easy-function-to-plot-lm-results-in-r/
-
-                ggplotRegression <- function (fit) {
-                  require(ggplot2)
-                  ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
-                    geom_point(size=0.5) +
-                    stat_smooth(method = "lm", col = "red") +
-                    labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
-                       "Intercept =",signif(fit$coef[[1]],5 ),
-                      " Slope =",signif(fit$coef[[2]], 5),
-                      " P =",signif(summary(fit)$coef[2,4], 5)))
-                }
-                
-          #Apply Function to simple linear model
-            ggplotRegression(lm(T1.wbv ~ Age, data=SIM_DATA_long))      
-            ggplotRegression(lm(T1.cortex ~ Age, data=SIM_DATA_long))     
-            ggplotRegression(lm(T1.white ~ Age, data=SIM_DATA_long))     
-            ggplotRegression(lm(T1.cortical.thickness ~ Age, data=SIM_DATA_long)) 
-            ggplotRegression(lm(T1.surface.area ~ Age, data=SIM_DATA_long))   
-                
-        
-```
-
-
- 
- 
- 
- 
- 
-    
-      ggplot(SIM_DATA_long, aes(x=Age, y=T1.wbv, group=Site)) +
-      geom_density()
-
-      ggplot(SIM_DATA_long, aes(x=Age, y=T1.wbv)) +
-        geom_point(size=1,aes(colour=period)) +
-        geom_line(aes(group=ID), colour ="grey", alpha = 0.2) +
-        stat_smooth(method = "lm", size=1) +
-        xlab(" Age (years)") +
-        ylab(expression(WholeBrainVol (mm^3))) +
-        theme(axis.text.x= element_text(size=18),axis.text.y= element_text(size=18), axis.title.y= element_text(size=18),axis.title.x = element_text(size=18)) 
+      qq <-  ssanova(T1.wbv ~ Age*Sex, random = ~1|factor(ID), data=SIM_DATA_long)   # Takes a while!  
+      SIM_DATA_long$spline <- predict(qq,SIM_DATA_long)
       
-        ggplot(SIM_DATA_long, aes(x=Age, y=T1.wbv, group = Site)) +
-        geom_point(size=1,aes(colour=period)) +
-        geom_line(aes(group=Site), colour ="grey", alpha = 0.2) +
-        stat_smooth(method = "lm", size=1) +
-        xlab(" Age (years)") +
-        ylab(expression(WholeBrainVol (mm^3))) +
-        theme(axis.text.x= element_text(size=18),axis.text.y= element_text(size=18), axis.title.y= element_text(size=18),axis.title.x = element_text(size=18)) 
-      
- 
- 
-    
-  ## Whole Brain Volume 
-
-      # Histogram WBV by Sex
-        library(plyr)
-        temp.med <- ddply(SIM_DATA_long, "Sex", summarise, wbv.median=median(T1.wbv)) 
-      
-        ggplot(SIM_DATA_long, aes(x=T1.wbv, fill=factor(Sex))) +
-        geom_density(alpha = 0.4) +  
-        scale_fill_manual(values=c("red","blue")) +
-        geom_vline(data=temp.med, aes(xintercept=wbv.median,colour=Sex),linetype="dashed", size=0.5) +
-        ggtitle("WBV") 
+       ggplot(SIM_DATA_long, aes(x=Age, y=T1.wbv)) + 
+                geom_point(size=1, aes(colour=Sex)) +
+                geom_line(data=SIM_DATA_long, aes(x=Age, y=spline, group= Sex, colour = Sex), size =1)  + 
+                xlab(" Age (years)") +
+                ylab(expression(WBV (mm^3))) +
+        theme(axis.text.x= element_text(size=18),axis.text.y= element_text(size=18), axis.title.y= element_text(size=18),axis.title.x = element_text(size=18))  
   
-        
-        
-        
-             
-
-      ## Cortex Volume 
-        ggplot(SIM_DATA_long, aes(x=Age, y=T1.cortex)) +
-        geom_point(size=1,aes(colour=period)) +
-        geom_line(aes(group=ID), colour ="grey", alpha = 0.2) +
-        stat_smooth(method = "lm", size=1) +
-        xlab(" Age (years)") +
-        ylab(expression(CortexVol (mm^3))) +
-        theme(axis.text.x= element_text(size=18),axis.text.y= element_text(size=18), axis.title.y= element_text(size=18),axis.title.x = element_text(size=18)) 
-      ## White Matter Volume
-        ggplot(SIM_DATA_long, aes(x=Age, y=T1.white)) +
-        geom_point(size=1,aes(colour=period)) +
-        geom_line(aes(group=ID), colour ="grey", alpha = 0.2) +
-        stat_smooth(method = "lm", size=1) +
-        xlab(" Age (years)") +
-        ylab(expression(WhiteMatterVol (mm^3))) +
-        theme(axis.text.x= element_text(size=18),axis.text.y= element_text(size=18), axis.title.y= element_text(size=18),axis.title.x = element_text(size=18)) 
-       ## Cortical Thickness
-        ggplot(SIM_DATA_long, aes(x=Age, y=T1.cortical.thickness)) +
-        geom_point(size=1,aes(colour=period)) +
-        geom_line(aes(group=ID), colour ="grey", alpha = 0.2) +
-        stat_smooth(method = "lm", size=1) +
-        xlab(" Age (years)") +
-        ylab(expression(CorticalThickness (mm))) +
-        theme(axis.text.x= element_text(size=18),axis.text.y= element_text(size=18), axis.title.y= element_text(size=18),axis.title.x = element_text(size=18)) 
-      ## Surface Area
-        ggplot(SIM_DATA_long, aes(x=Age, y=T1.surface.area)) +
-        geom_point(size=1,aes(colour=period)) +
-        geom_line(aes(group=ID), colour ="grey", alpha = 0.2) +
-        stat_smooth(method = "lm", size=1) +
-        xlab(" Age (years)") +
-        ylab(expression(SurfaceArea (mm^2))) +
-        theme(axis.text.x= element_text(size=18),axis.text.y= element_text(size=18), axis.title.y= element_text(size=18),axis.title.x = element_text(size=18)) 
-
+          #  ggsave("Splines.png",width = 40, height = 20, units = "cm", dpi = 300)
+      
 
 ```
-\newpage
-
-####Now Some Mixed Effects Models   
-```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
- 
-    # Mixed Effects Models with Repeated Measures 
-
-
-  library(lme4)
-   lme.wbv <- lmer(T1.wbv ~ Age*Sex + (1|ID), data = SIM_DATA_long)
-   summary(lme.wbv)
-   tempEf$fit <- predict(lme.wbv)   #Add model fits to dataframe qqnorm(lme.wbv)
-   
-   library(ggplot2)
-    ggplot(tempEf,aes(Age, T1.wbv, group=interaction(site, Myc), col=site, shape=Myc )) + 
-      facet_grid(~N) +
-      geom_line(aes(y=fit, lty=Myc), size=0.8) +
-      geom_point(alpha = 0.3) + 
-      geom_hline(yintercept=0, linetype="dashed") +
-      theme_bw()
-   
-   
-         
-    lme.cortex <- lme(T1.cortex ~ Age, random =~1|ID, data = SIM_DATA_long)
-    summary(lme.cortex)
-    
-    lme.white <- lme(T1.white ~ Age, random =~1|ID, data = SIM_DATA_long)
-    summary(lme.white)
-    
-    lme.CT <- lme(T1.cortical.thickness ~ Age, random =~1|ID, data = SIM_DATA_long)
-    summary(lme.CT)
-    
-    lme.SA <- lme(T1.surface.area ~ Age, random =~1|ID, data = SIM_DATA_long)
-    summary(lme.SA)
-
-    
- 
-    
-```
-\newpage
-####To create NOISY DATA   
-```{r, results='hide', echo=FALSE, message=FALSE, warning=FALSE}
-
-  #By Sex
-  SIM_DATA_long$T1.wbv.sex <- SIM_DATA_long$T1.wbv*(1 + 0.2*(SIM_DATA_long$Sex == "Male"))
-  SIM_DATA_long$T1.cortex.sex <- SIM_DATA_long$T1.cortex * (1 + 0.2*(SIM_DATA_long$Sex == "Male"))
-  SIM_DATA_long$T1.white.sex <- SIM_DATA_long$T1.white * (1 + 0.2*(SIM_DATA_long$Sex == "Male"))
-  SIM_DATA_long$T1.cortical.thickness.sex <- SIM_DATA_long$T1.cortical.thickness * (1 + 0.1*(SIM_DATA_long$Sex == "Male"))
-  SIM_DATA_long$T1.surface.area.sex <- SIM_DATA_long$T1.surface.area * (1 + 0.1*(SIM_DATA_long$Sex == "Male"))
-
-  ## By Site - adding variability 
-    SIM_DATA_long$T1.wbc.site <- SIM_DATA_long$T1.wbc * (8*SIM_DATA_long$noise*(SIM_DATA_long$Site == "There"))
-    SIM_DATA_long$T1.wbc.site <- SIM_DATA_long$T1.wbc * (SIM_DATA_long$noise*(SIM_DATA_long$Site == "There"))
-    SIM_DATA_long$T1.wbc.site <- SIM_DATA_long$T1.wbc * (SIM_DATA_long$noise*(SIM_DATA_long$Site == "There"))
-    SIM_DATA_long$T1.wbc.site <- SIM_DATA_long$T1.wbc * (SIM_DATA_long$noise*(SIM_DATA_long$Site == "There"))
-    SIM_DATA_long$T1.wbc.site <- SIM_DATA_long$T1.wbc * (SIM_DATA_long$noise*(SIM_DATA_long$Site == "There"))
-
-
-
-```
-
