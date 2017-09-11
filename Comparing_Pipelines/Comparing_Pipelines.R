@@ -4,9 +4,6 @@
 ##       By Kate Mills & Anne-Lise Goddings       ##
 ####################################################
 
-## This code will load data that have been 
-## sample by participant.
-
 ## Load required packages 
 packages <- c("lme4", "nlme", "ggplot2", "dplyr", "tidyr", "knitr",
                 "parallel", "data.table", "lubridate")
