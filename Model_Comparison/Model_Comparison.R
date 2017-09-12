@@ -1,7 +1,7 @@
-#######################################################################
-##        Model Comparison example script                            ##
-##       By Kate Mills & Anne-Lise Goddings & Nandi Vijayakumar      ##
-#######################################################################
+##################################################
+##        Model Comparison                      ##
+##       By Kate Mills & Nandi Vijayakumar      ##
+##################################################
 
 ## Load required packages 
 packages <- c("lme4", "nlme", "ggplot2", "dplyr", "tidyr", "knitr",
@@ -16,8 +16,7 @@ ctrl <- lmeControl(opt='optim')
 options(scipen=999)
 
 ## Load your sample ##
-dir <- gsub("Model_Comparison", "Comparing_pipelines/exampledata.RData", getwd())
-load(paste0(dir))
+load(paste0(getwd(),"/Comparing_pipelines/exampledata.RData"))
 
 thedata<-exampledata_comparing
 
