@@ -1,0 +1,3 @@
+,QC1,,,QC2,,,,,
+subid,motion_present: yes/no,motion_severity: 1=none; 2=some; 3=severe,where_motion: parcellation numbers,white_surface: 1=perfect; 2=OK; 3=bad,where_white_surface: parcellation numbers,pial_surface: 1=perfect; 2=OK; 3=bad,where_pial_surface: parcellation numbers,notes,rater_initials
+XXX,yes,2,1028; 1029;,1,,2,1089,,NV
