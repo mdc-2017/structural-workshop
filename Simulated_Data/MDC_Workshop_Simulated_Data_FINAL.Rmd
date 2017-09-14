@@ -26,7 +26,7 @@ output:
  Note      
   ** Any typos are MLS' fault \
   ** You will need the following R Packages \    
-      simstudy, ttidyverse, knitr, GGally, nlme \
+      simstudy, ttidyverse, knitr, GGally, nlme,gss \
 \  
 \linebreak
 \linebreak
