@@ -30,6 +30,10 @@ thedata <- thedata %>%
 thedata$participantordered <- factor(thedata$participant,
                                      levels = thedata$participant[order(thedata$age)])
 
+### IF YOU GET THE CRITICAL WARNING:
+thedata$participantordered <- factor(thedata$participant,
+                                     levels = rev(unique(thedata$participant)), order=TRUE)
+
 # Graph it
 AgebyParticipant<-ggplot(thedata,
                          aes(colour=gender,
