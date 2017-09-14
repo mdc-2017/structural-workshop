@@ -10,7 +10,7 @@ rm(list=ls())
 options(scipen=999)
 
 ## This code will let you visualize and fit basic models with age vs. tanner stage
-##First, run the MDC_Workshop_Simulated_Data_Tanner script and has "MDC_Workshop_Simulated_data_tanner.csv" into your working path/directory
+##First, make sure you up date your path to the fake data: "MDC_Workshop_Simulated_data_tanner_sexdiff.csv" so it points to your working path/directory
 SIM_DATA_long=read.csv("/Users/megan/Dropbox/FLUX/Workshop/workshop-master/Developmental_Measures/MDC_Workshop_Simulated_data_tanner_sexdiff.csv")
 
 ## Load required packages 
@@ -36,7 +36,7 @@ Time_age
 Tanner_age=ggplot(data=SIM_DATA_long, aes(x=Age, y=Tanner, group=ID))+geom_point(aes(shape=period, color=Sex))+geom_line(aes(group=ID, color=Sex))+geom_smooth(method = "loess", aes(group=Sex, color=Sex))+xlab("Age")+ylab("Tanner")
 Tanner_age
 
-
+##Now it is time to explore how cortical volumes change using various time variables
 ##Create Time/Wave Plot
 GM_time=ggplot(data=SIM_DATA_long, aes(x=period, y=T1.cortex, group=ID))+geom_point(aes(shape=period, color=Sex))+geom_line(aes(group=ID, color=Sex))+xlab("Time Point")+ylab("Cortex Volume")+geom_smooth(method = "loess", aes(group=Sex))
 
@@ -75,18 +75,30 @@ ggsave(filename="/Users/megan/Dropbox/FLUX/Workshop/workshop-master/Developmenta
        height=7)
 
 ##Part 1.2: LME models of cortex by 3 "time" measurements
+##Run null model (no time variable)
+GM_null_lme=lme(T1.cortex~1, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
+summary(GM_null_lme)
+
 ##Run linear mixed effect model to see how cortex volume changes over time 
 GM_time_lme=lme(T1.cortex~time+Sex, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
 summary(GM_time_lme)
 
+#Compare to null model
+anova(GM_null_lme,GM_time_lme)
 
 ##Run linear mixed effect model to see how cortex volume changes over time as a function of age
 GM_age_lme=lme(T1.cortex~Age+Sex, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
 summary(GM_age_lme)
 
+#Compare to null model
+anova(GM_null_lme,GM_age_lme)
+
 ##Run linear mixed effect model to see how cortex volume changes over time as a function of puberty
 GM_tanner_lme=lme(T1.cortex~Tanner+Sex, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
 summary(GM_tanner_lme)
+
+#Compare to null model
+anova(GM_null_lme,GM_tanner_lme)
 
 ##Put both Tanner and Age in the model
 GM_tanner_age_lme=lme(T1.cortex~Age+Tanner+Sex, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
@@ -113,7 +125,7 @@ ggsave(filename="/Users/megan/Dropbox/FLUX/Workshop/workshop-master/Developmenta
 
 
 ##Create relationship between WBV and GM cortex volume
-GM_WBV=ggplot(data=SIM_DATA_long, aes(x=T1.cortex, y=T1.wbv, group=ID))+geom_point(aes(shape=period, color=Sex))+geom_line(aes(group=ID, color=Sex))+xlab("Cortex Volume")+ylab("Whole Brain Volume")+geom_smooth(method = "loess", aes(group=Sex))
+GM_WBV=ggplot(data=SIM_DATA_long, aes(x=T1.cortex, y=T1.wbv, group=ID))+geom_point(aes(shape=period, color=Sex))+geom_line(aes(group=ID, color=Sex))+xlab("Cortex Volume")+ylab("Whole Brain Volume")+geom_smooth(method = "loess", aes(group=Sex, color=Sex))
 
 #Print WBV and GM Plot
 GM_WBV
@@ -127,18 +139,15 @@ ggsave(filename="/Users/megan/Dropbox/FLUX/Workshop/workshop-master/Developmenta
 
 
 ## Determine how cortex volume and wbv relate over time
-GM_WBV=lme(T1.cortex~T1.wbv*Sex, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
+GM_WBV=lme(T1.cortex~T1.wbv+Sex, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
 summary(GM_WBV)
 
 
 ##Run linear mixed effect model to see how cortex volume changes over time as a function of age with and without control volumes
-GM_age_lme=lme(T1.cortex~Age*Sex, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
+GM_age_lme=lme(T1.cortex~Age+Sex, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
 summary(GM_age_lme)
 
-WBV_age_lme=lme(T1.wbv~Age*Sex, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
-summary(WBV_age_lme)
-
-GM_age_wbv_lme=lme(T1.cortex~Age*Sex+T1.wbv, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
+GM_age_wbv_lme=lme(T1.cortex~Age+Sex+T1.wbv, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
 summary(GM_age_wbv_lme)
 
 ##Compare models
