@@ -104,15 +104,17 @@ anova(GM_null_lme,GM_tanner_lme)
 GM_tanner_age_lme=lme(T1.cortex~Age+Tanner+Sex, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
 summary(GM_tanner_age_lme)
 
+GM_tannerbyage_lme=lme(T1.cortex~Age*Tanner+Sex, random = ~ 1 | ID, data=SIM_DATA_long, method='ML')
+summary(GM_tannerbyage_lme)
+
 ##Compare with and without controlling for the other "developmental" variable
-anova(GM_age_lme, GM_tanner_age_lme)
-anova(GM_tanner_lme, GM_tanner_age_lme)
+anova(GM_age_lme, GM_tanner_lme, GM_tanner_age_lme, GM_tannerbyage_lme)
 
 
 ##Part 2: Exploring a covariate for head size -- WBV
 
 ##Create WBV with age
-WBV_age=ggplot(data=SIM_DATA_long, aes(x=Age, y=T1.wbv, group=ID))+geom_point(aes(shape=period, color=Sex))+geom_line(aes(group=ID, color=Sex))+xlab("Age")+ylab("Whole Brain Volume")+geom_smooth(method = "loess", aes(group=Sex))
+WBV_age=ggplot(data=SIM_DATA_long, aes(x=Age, y=T1.wbv, group=ID))+geom_point(aes(shape=period, color=Sex))+geom_line(aes(group=ID, color=Sex))+xlab("Age")+ylab("Whole Brain Volume")+facet_grid(.~Sex)
 
 #Print WBV with age Plot
 WBV_age
@@ -125,7 +127,7 @@ ggsave(filename="/Users/megan/Dropbox/FLUX/Workshop/workshop-master/Developmenta
 
 
 ##Create relationship between WBV and GM cortex volume
-GM_WBV=ggplot(data=SIM_DATA_long, aes(x=T1.cortex, y=T1.wbv, group=ID))+geom_point(aes(shape=period, color=Sex))+geom_line(aes(group=ID, color=Sex))+xlab("Cortex Volume")+ylab("Whole Brain Volume")+geom_smooth(method = "loess", aes(group=Sex, color=Sex))
+GM_WBV=ggplot(data=SIM_DATA_long, aes(x=T1.cortex, y=T1.wbv, group=ID))+geom_point(aes(shape=period, color=Sex))+geom_line(aes(group=ID, color=Sex))+xlab("Cortex Volume")+ylab("Whole Brain Volume")+geom_smooth(method = "loess", aes(group=Sex))+facet_grid(.~Sex)
 
 #Print WBV and GM Plot
 GM_WBV
