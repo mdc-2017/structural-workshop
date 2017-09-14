@@ -59,3 +59,35 @@ ggsave(filename=paste0(getwd(),"/Visualize_Sample/AgebyParticipant.jpg"),
        width=5,
        height=7)
 
+
+# Okay now try it with another dataset (Bea's Data):
+
+assign(paste0("thedata"),
+       get(load(paste0(getwd(),"/Comparing_Pipelines/exampledata.RData"))))
+
+## Create new variable ordering participants by age
+thedata$participantordered <- factor(thedata$subid,
+                                     levels = thedata$subid[order(thedata$age)])
+
+# Graph it
+AgebyParticipant<-ggplot(thedata,
+                         aes(colour=sex,
+                             y=participantordered,
+                             x=age))+
+  geom_line(size=.7) + 
+  ylab("Participants") +
+  geom_point(size=3) +
+  theme_bw() +
+  theme_minimal(base_size = 18,
+                base_family = "Arial") +
+  theme(axis.line = element_line(colour = "black"),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position="none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+# Take a look
+AgebyParticipant

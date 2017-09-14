@@ -98,3 +98,5 @@ Prefrontal_Volume_Difference<-ggplot(data=exampledata_comparing,
 Prefrontal_Volume_Difference
 
 grid.arrange(Prefrontal_Volume_Xsectional,Prefrontal_Volume_Longitudinal,ncol=2)
+
+
