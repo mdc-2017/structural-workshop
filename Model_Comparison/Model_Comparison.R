@@ -67,9 +67,14 @@ age_predict_PFC_table<-anova(null_PFCmodel,
                           lin_PFCmodel,
                           quad_PFCmodel,
                           cub_PFCmodel)
+# take a look
+age_predict_PFC_table
 
+#compare cubic model and linear model
 age_predict_PFC_linvscub_table<-anova(lin_PFCmodel,cub_PFCmodel)
+age_predict_PFC_linvscub_table
 
+# Looks like the cubic model is the best fit
 bestagemodel_PFC<-cub_PFCmodel
 
 #######################################
@@ -87,9 +92,9 @@ y.pred = predict(bestagemodel_PFC,
 data.pred = cbind.data.frame(data.pred,
                              y.pred)
 scale = 1.96
-designmat<-model.matrix(eval(eval(bestagemodel$call$fixed)[-2]),
+designmat<-model.matrix(eval(eval(bestagemodel_PFC$call$fixed)[-2]),
                         data.pred[-3]) #make design matrix
-SDvalue<-sqrt(diag(designmat %*% bestagemodel$varFix %*% t(designmat))) #calculate standard deviation for each point for each model
+SDvalue<-sqrt(diag(designmat %*% bestagemodel_PFC$varFix %*% t(designmat))) #calculate standard deviation for each point for each model
 y.lower<-y.pred-(scale*SDvalue) #calculate confidence intervals - lower
 y.upper<-y.pred+(scale*SDvalue) #calculate confidence intervals - upper
 data.pred = cbind.data.frame(data.pred,
